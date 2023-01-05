@@ -1,134 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>appvuesimple</title>
     <style>
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+      .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
 
-        .pokemonsImage {
-            width: 100px;
-            height: 100px;
-        }
+      .pokemonsImage {
+        width: 100px;
+        height: 100px;
+      }
 
-        .header {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0 20px;
-        }
-
-        
-
+      .header {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0 20px;
+      }
     </style>
-</head>
-<body>
-    <div class="header">
-        <a
-        @click="this.home()"
-            >
-            <h1>Pokemons</h1>
-    </a>
-
-    </div>
-    <div class="container" >
-
-        <div  id="pokedex" >
-            <ul v-if="layout == 'pokemonlist'" class='pokemons'>
-                <li v-for="pokemon in pokemons">
-                    <a 
-                    @click="this.getPokemon(pokemon)"
-                    @click="layout = '564'">
-                    <h2>{{pokemon.name}}</h2>
-                    </a>
-                </li>
-            </ul>
-
-            <div v-if="layout == 'pokemondetail'" class="pokemon">
+  </head>
+  <body>
+    <div id="appvuesimple">
+      <div class="header">
+        <button @click="home()">Pokemons</button>
+      </div>
+      <div id="pokedex">
+        <div class="container">
+          <ul v-if="layout === 'pokemonlist'" class="pokemons">
+            <li v-for="pokemon in pokemons">
+              <a @click="getPokemon(pokemon)">
                 <h2>{{pokemon.name}}</h2>
-                <img class="pokemonsImage" :src="pokemon.sprites.front_default" alt="">
-                <p>Height: {{pokemon.height}}</p>
-                <p>Weight: {{pokemon.weight}}</p>
-                <p>Base experience: {{pokemon.base_experience}}</p>
-                <p>Abilities:</p>
-                <ul>
-                    <li v-for="ability in pokemon.abilities">
-                        <p>{{ability.ability.name}}</p>
-                    </li>
-                </ul>
-                <p>Types: </p>
-                <ul>
-                    <li v-for="type in pokemon.types">
-                        <p>{{type.type.name}}</p>
-                    </li>
-                </ul>
-                
-                <p>Stats: </p>
-                <ul>
-                    <li v-for="stat in pokemon.stats">
-                        <p>{{stat.stat.name}}: {{stat.base_stat}}</p>
-                    </li>
-
+              </a>
+            </li>
+          </ul>
+          <div
+            v-if="layout === 'pokemondetail'"
+            class="pokemon"
+            v-bind:key="pokemon.name"
+          >
+            <h2>{{pokemon.name}}</h2>
+            <img
+              class="pokemonsImage"
+              :src="pokemon.sprites.front_default"
+              alt=""
+            />
+            <p>Height: {{pokemon.height}}</p>
+            <p>Weight: {{pokemon.weight}}</p>
+            <p>Base experience: {{pokemon.base_experience}}</p>
+            <p>Abilities:</p>
+            <ul>
+              <li v-for="ability in pokemon.abilities">
+                <p>{{ability.ability.name}}</p>
+              </li>
+            </ul>
+            <p>Types:</p>
+            <ul>
+              <li v-for="type in pokemon.types">
+                <p>{{type.type.name}}</p>
+              </li>
+            </ul>
+            <p>Stats:</p>
+            <ul>
+              <li v-for="stat in pokemon.stats">
+                <p>{{stat.stat.name}}: {{stat.base_stat}}</p>
+              </li>
+            </ul>
+          </div>
         </div>
-    </div>  
-
+      </div>
+    </div>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://unpkg.com/vue@3"></script>
     <script>
-        const apiUrl = 'https://pokeapi.co/api/v2/pokemon/?limit=900';
+      const apiUrl = "https://pokeapi.co/api/v2/pokemon/?limit=900";
 
-        Vue.createApp({
-            data() {
-                return {
-                    pokemons: [],
-                    pokemon: {},
-                    layout: 'pokemonlist'
+      Vue.createApp({
+        data() {
+          return {
+            pokemons: [],
+            pokemon: {},
+            layout: "pokemonlist",
+          };
+        },
 
-                }
-            },
+        created: function () {
+          this.getAllPokemons();
+        },
 
-            created: function() {
-                this.getAllPokemons();
-                
-            },
+        methods: {
+          async getAllPokemons() {
+            try {
+              const response = await axios.get(apiUrl);
+              this.pokemons = response.data.results;
+            } catch (error) {
+              console.log(error);
+            }
+          },
 
-            methods: {
-                async getAllPokemons() {
-                    try {
-                        const response = await axios.get(apiUrl);
-                        this.pokemons = response.data.results;
-                    } catch (error) {
-                        console.log(error);
-                    }
+          async getPokemon(pokemon) {
+            try {
+              const response = await axios.get(pokemon.url);
+              this.pokemon = response.data;
+              this.layout = "pokemondetail";
+            } catch (error) {
+              console.log(error);
+            }
+          },
 
-                },
-
-                async getPokemon(pokemon) {
-                    try {
-                        const response = await axios.get(pokemon.url);
-                        this.pokemon = response.data;
-                        this.layout = 'pokemondetail';
-                    } catch (error) {
-                        console.log(error);
-                    }
-                },
-
-                home(){
-                    this.layout = 'pokemonlist';
-                }
-
-
-
-            },
-    }).mount('#pokedex');
-
-
+          home() {
+            this.layout = "pokemonlist";
+          },
+        },
+      }).mount("#appvuesimple");
     </script>
-</body>
+  </body>
 </html>
